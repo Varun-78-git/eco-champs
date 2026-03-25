@@ -1,0 +1,137 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId}
+    // Fields:
+    //   - id: string (required)
+    //   - name: string (required)
+    //   - avatar: string
+    //   - points: number (required)
+    //   - completedChallenges: list
+    //   - completedAssignments: list
+    //   - dailyStreak: number
+    //   - lastLoginDate: string
+    //   - role: string (required, 'student' | 'teacher')
+    //   - email: string
+    //   - phone: string
+    //
+    // Collection: announcements
+    // Document ID: {announcementId}
+    // Fields:
+    //   - id: string (required)
+    //   - text: string (required)
+    //   - timestamp: string (required)
+    //
+    // Collection: assignments
+    // Document ID: {assignmentId}
+    // Fields:
+    //   - id: string (required)
+    //   - title: string (required)
+    //   - description: string
+    //   - points: number (required)
+    //   - assignedTo: string
+    //   - dueDate: string (required)
+    //
+    // Collection: submissions
+    // Document ID: {submissionId}
+    // Fields:
+    //   - id: string (required)
+    //   - userId: string (required)
+    //   - userName: string
+    //   - userAvatar: string
+    //   - type: string (required, 'challenge' | 'assignment')
+    //   - sourceId: string (required)
+    //   - title: string
+    //   - pointsAwarded: number
+    //   - proofUrl: string
+    //   - status: string (required, 'pending' | 'approved' | 'rejected')
+    //   - submittedAt: string (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher' ||
+         (request.auth.token.email == "varunmedoju2007@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['id', 'name', 'points', 'role']) &&
+             data.id is string &&
+             data.name is string && data.name.size() < 100 &&
+             data.points is number &&
+             data.role in ['student', 'teacher'] &&
+             (!('email' in data) || data.email is string) &&
+             (!('phone' in data) || data.phone is string);
+    }
+
+    function isValidAnnouncement(data) {
+      return data.keys().hasAll(['id', 'text', 'timestamp']) &&
+             data.id is string &&
+             data.text is string && data.text.size() < 1000 &&
+             data.timestamp is string;
+    }
+
+    function isValidAssignment(data) {
+      return data.keys().hasAll(['id', 'title', 'points', 'dueDate']) &&
+             data.id is string &&
+             data.title is string && data.title.size() < 200 &&
+             data.points is number &&
+             data.dueDate is string;
+    }
+
+    function isValidSubmission(data) {
+      return data.keys().hasAll(['id', 'userId', 'type', 'sourceId', 'status', 'submittedAt']) &&
+             data.id is string &&
+             data.userId is string &&
+             data.type in ['challenge', 'assignment'] &&
+             data.sourceId is string &&
+             data.status in ['pending', 'approved', 'rejected'] &&
+             data.submittedAt is string;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && (request.resource.data.role == 'student' || isAdmin());
+      allow update: if isAuthenticated() && isValidUser(request.resource.data) && 
+                      (isOwner(userId) && request.resource.data.role == resource.data.role || isAdmin());
+    }
+
+    match /announcements/{announcementId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidAnnouncement(request.resource.data);
+    }
+
+    match /assignments/{assignmentId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidAssignment(request.resource.data);
+    }
+
+    match /submissions/{submissionId} {
+      allow read: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+      allow create: if isAuthenticated() && isOwner(request.resource.data.userId) && isValidSubmission(request.resource.data);
+      allow update: if isAdmin() && isValidSubmission(request.resource.data);
+      allow delete: if isAdmin();
+    }
+  }
+}

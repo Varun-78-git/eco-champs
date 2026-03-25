@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoChamps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles to bridge Tailwind config gap for CDN usage */
+        :root {
+            --color-primary: #22c55e; /* green-500 */
+            --color-primary-dark: #16a34a; /* green-600 */
+            --color-secondary: #f97316; /* orange-500 */
+            --color-background: #f9fafb; /* gray-50 */
+            --color-surface: #ffffff;
+            --color-text-primary: #1f2937; /* gray-800 */
+            --color-text-secondary: #6b7280; /* gray-500 */
+            --leaf-color: rgba(34, 197, 94, 0.3);
+            --gold-leaf-color: rgba(252, 211, 77, 0.3); /* yellow-400 */
+            --quiz-color: rgba(59, 130, 246, 0.2); /* blue-500 */
+            --teacher-color: rgba(139, 92, 246, 0.2); /* violet-500 */
+            --radium-leaf-color: rgba(57, 255, 20, 0.4);
+            --radium-plastic-color: rgba(0, 255, 255, 0.4);
+            --radium-sun-color: rgba(253, 224, 71, 0.4); /* yellow-300 */
+            --radium-cloud-color: rgba(148, 163, 184, 0.3); /* slate-400 */
+            --radium-water-color: rgba(59, 130, 246, 0.3); /* blue-500 */
+        }
+        html.dark {
+            --color-primary: #4ade80; /* green-400 */
+            --color-primary-dark: #22c55e; /* green-500 */
+            --color-secondary: #fb923c; /* orange-400 */
+            --color-background: #111827; /* gray-900 */
+            --color-surface: #1f2937; /* gray-800 */
+            --color-text-primary: #f9fafb; /* gray-50 */
+            --color-text-secondary: #9ca3af; /* gray-400 */
+            --leaf-color: rgba(74, 222, 128, 0.2);
+            --gold-leaf-color: rgba(250, 204, 21, 0.2); /* yellow-500 */
+            --quiz-color: rgba(96, 165, 250, 0.15); /* blue-400 */
+            --teacher-color: rgba(167, 139, 250, 0.15); /* violet-400 */
+            --radium-leaf-color: rgba(57, 255, 20, 0.3);
+            --radium-plastic-color: rgba(0, 255, 255, 0.3);
+            --radium-sun-color: rgba(250, 204, 21, 0.3); /* yellow-400 */
+            --radium-cloud-color: rgba(100, 116, 139, 0.3); /* slate-500 */
+            --radium-water-color: rgba(96, 165, 250, 0.25); /* blue-400 */
+        }
+        .bg-primary { background-color: var(--color-primary); }
+        .hover\:bg-primary-dark:hover { background-color: var(--color-primary-dark); }
+        .bg-primary-dark { background-color: var(--color-primary-dark); }
+        .text-primary { color: var(--color-primary); }
+        .border-primary { border-color: var(--color-primary); }
+        .text-secondary { color: var(--color-secondary); }
+        .bg-background { background-color: var(--color-background); }
+        .bg-surface { background-color: var(--color-surface); }
+        .text-text-primary { color: var(--color-text-primary); }
+        .text-text-secondary { color: var(--color-text-secondary); }
+
+        /* SVG theming utilities */
+        .fill-text-primary { fill: var(--color-text-primary); }
+        .stroke-text-primary { stroke: var(--color-text-primary); }
+
+        body {
+            transition: background-color 0.3s;
+        }
+
+        .dynamic-background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background-color: var(--color-background);
+            transition: background-color 0.3s;
+        }
+
+        .animated-item {
+            position: absolute;
+            bottom: -150px;
+            opacity: 0;
+            animation: drift 25s infinite linear;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .animated-item svg {
+            width: 100%;
+            height: 100%;
+            max-width: 70px;
+            max-height: 70px;
+            fill: currentColor;
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+        
+        @keyframes drift {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-120vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* New Animations for Learning Modules */
+        @keyframes sun-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        @keyframes evaporate {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-30px) scale(0.5); opacity: 0; }
+        }
+        @keyframes cloud-move {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(5px); }
+        }
+        @keyframes rain-fall {
+            0% { transform: translateY(-10px); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(30px); opacity: 0; }
+        }
+        @keyframes decompose {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.5); }
+        }
+        @keyframes grow {
+            0% { transform: scaleY(0); transform-origin: bottom; }
+            100% { transform: scaleY(1); transform-origin: bottom; }
+        }
+        @keyframes bee-buzz {
+            0%, 100% { transform: translate(0, 0) rotate(0); }
+            25% { transform: translate(1px, -1px) rotate(2deg); }
+            50% { transform: translate(0, 0) rotate(0); }
+            75% { transform: translate(-1px, 1px) rotate(-2deg); }
+        }
+        @keyframes float-bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        @keyframes smoke-rise {
+            0% { opacity: 0.5; transform: translateY(0) scale(0.8); }
+            100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes tree-disappear {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        @keyframes tree-appear {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* Custom Cursor Styles */
+        * {
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%2332CD32' stroke='white' stroke-width='1'%3E%3Cpath d='M5.5 3.21V20.8c0 .45.54.67.85.35l4.83-4.83 2.3 5.17c.14.33.52.48.84.34l2.12-.94c.33-.14.48-.52.34-.84l-2.3-5.17 6.17-.6c.32-.03.45-.42.23-.65L6.35 2.86c-.32-.32-.85-.1-.85.35z'/%3E%3C/svg%3E"), auto !important;
+        }
+        
+        a, button, [role="button"], input, select, textarea {
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%2332CD32' stroke='white' stroke-width='1'%3E%3Cpath d='M5.5 3.21V20.8c0 .45.54.67.85.35l4.83-4.83 2.3 5.17c.14.33.52.48.84.34l2.12-.94c.33-.14.48-.52.34-.84l-2.3-5.17 6.17-.6c.32-.03.45-.42.23-.65L6.35 2.86c-.32-.32-.85-.1-.85.35z'/%3E%3C/svg%3E"), pointer !important;
+        }
+    </style>
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://aistudiocdn.com/react@^19.1.1",
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+        "react/": "https://aistudiocdn.com/react@^19.1.1/",
+        "@google/genai": "https://aistudiocdn.com/@google/genai@^1.20.0"
+      }
+    }
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

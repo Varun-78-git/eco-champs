@@ -1,0 +1,86 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and progress data",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "avatar": { "type": "string" },
+        "points": { "type": "number" },
+        "completedChallenges": { "type": "array" },
+        "completedAssignments": { "type": "array" },
+        "dailyStreak": { "type": "number" },
+        "lastLoginDate": { "type": "string" },
+        "role": { "type": "string", "enum": ["student", "teacher"] },
+        "language": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" }
+      },
+      "required": ["id", "name", "points", "role"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Global announcements",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "text", "timestamp"]
+    },
+    "Assignment": {
+      "title": "Assignment",
+      "description": "Teacher-assigned tasks",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "points": { "type": "number" },
+        "assignedTo": { "type": "string" },
+        "dueDate": { "type": "string" }
+      },
+      "required": ["id", "title", "points", "dueDate"]
+    },
+    "Submission": {
+      "title": "Submission",
+      "description": "Student submissions for review",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userAvatar": { "type": "string" },
+        "type": { "type": "string", "enum": ["challenge", "assignment"] },
+        "sourceId": { "type": "string" },
+        "title": { "type": "string" },
+        "pointsAwarded": { "type": "number" },
+        "proofUrl": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "submittedAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "type", "sourceId", "status", "submittedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/announcements/{announcementId}": {
+      "schema": "Announcement",
+      "description": "Global announcements"
+    },
+    "/assignments/{assignmentId}": {
+      "schema": "Assignment",
+      "description": "Teacher assignments"
+    },
+    "/submissions/{submissionId}": {
+      "schema": "Submission",
+      "description": "Student submissions"
+    }
+  }
+}
